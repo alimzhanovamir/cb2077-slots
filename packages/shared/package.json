@@ -1,0 +1,17 @@
+{
+  "name": "@cb2077/shared",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Protocol contract: the envelope (platform, RGS) and the game payload (game, math) as zod schemas",
+  "exports": {
+    ".": "./src/index.ts",
+    "./game": "./src/game/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "zod": "^4.6.5"
+  }
+}

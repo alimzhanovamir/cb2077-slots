@@ -1,0 +1,21 @@
+{
+  "name": "@cb2077/rgs",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "RGS core: sessions, rounds, balance, bet limits, debug commands; runs in Node.js and in the browser",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@cb2077/shared": "workspace:*",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@cb2077/math": "workspace:*"
+  }
+}

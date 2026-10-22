@@ -1,0 +1,595 @@
+/* The platform's own look (ADR 014): its own palettes and fonts, independent of the game, which
+   draws its own canvas and loads its own fonts. */
+:root {
+  --platform-bg: #000;
+  --platform-text: #ececf1;
+  --platform-font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--platform-bg);
+  color: var(--platform-text);
+  font-family: var(--platform-font);
+  /* No double-tap zoom, pinch zoom or scrolling on touch devices. */
+  touch-action: none;
+  overscroll-behavior: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+#game,
+#game canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* ---------------------------------------------------------------- Debug drawer */
+/* A developer tool in the project's cyberpunk look: its own palette and a monospace font,
+   independent of the game's code and fonts. */
+
+.debug-drawer {
+  --cyber-yellow: #fcee0a;
+  --cyber-cyan: #02d7f2;
+  --cyber-red: #ff003c;
+  --cyber-ink: #0a0a10;
+  --cyber-panel: #0d0d14;
+  --cyber-line: #2c2c38;
+  --cyber-text: #d9d9e3;
+  --cyber-dim: #7a7a88;
+  --cyber-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  /* A rectangle with the bottom-right corner cut off. */
+  --cyber-cut: polygon(0 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%);
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  display: flex;
+  transform: translateX(min(340px, calc(100vw - 44px)));
+  transition: transform 0.2s ease;
+  z-index: 10;
+  touch-action: auto;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.debug-drawer.open {
+  transform: translateX(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .debug-drawer {
+    transition: none;
+  }
+}
+
+.debug-toggle {
+  align-self: center;
+  writing-mode: vertical-rl;
+  padding: 18px 8px;
+  border: none;
+  background: var(--cyber-yellow);
+  color: var(--cyber-ink);
+  font: 800 12px/1 var(--cyber-mono);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  cursor: pointer;
+  clip-path: polygon(9px 0, 100% 0, 100% 100%, 9px 100%, 0 calc(100% - 9px), 0 9px);
+}
+
+.debug-panel {
+  display: flex;
+  flex-direction: column;
+  width: min(340px, calc(100vw - 44px));
+  height: 100%;
+  overflow-y: auto;
+  padding: 16px;
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.018) 0 1px, transparent 1px 3px),
+    rgba(10, 10, 16, 0.97);
+  border-left: 1px solid var(--cyber-yellow);
+  color: var(--cyber-text);
+  font: 12px/1.4 var(--cyber-mono);
+}
+
+.debug-panel h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 8px;
+  color: var(--cyber-yellow);
+  font: 700 11px/1 var(--cyber-mono);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.debug-panel h3::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(252, 238, 10, 0.45), transparent);
+}
+
+.debug-panel section > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+/* The frame is the button's background; `::before` paints the inside 1px smaller, so the frame
+   follows the cut corner too. */
+.debug-panel button {
+  --tone: var(--cyber-cyan);
+  position: relative;
+  isolation: isolate;
+  padding: 8px 13px 8px 10px;
+  border: none;
+  background: var(--tone);
+  color: var(--tone);
+  font: 700 11px/1 var(--cyber-mono);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  clip-path: var(--cyber-cut);
+}
+
+.debug-panel button::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  z-index: -1;
+  background: var(--cyber-panel);
+  clip-path: var(--cyber-cut);
+}
+
+.debug-panel button[data-tone="danger"] {
+  --tone: var(--cyber-red);
+}
+
+.debug-panel button:hover,
+.debug-panel button:focus-visible {
+  color: #fff;
+  text-shadow: 0 0 6px var(--tone);
+}
+
+.debug-panel button:hover::before,
+.debug-panel button:focus-visible::before {
+  background: color-mix(in srgb, var(--tone) 22%, var(--cyber-panel));
+}
+
+.debug-panel button:active::before {
+  background: color-mix(in srgb, var(--tone) 45%, var(--cyber-panel));
+}
+
+.debug-panel input {
+  width: 110px;
+  padding: 7px 8px;
+  border: none;
+  border-bottom: 1px solid var(--cyber-cyan);
+  border-radius: 0;
+  outline: none;
+  background: rgba(2, 215, 242, 0.06);
+  color: var(--cyber-text);
+  font: 12px/1 var(--cyber-mono);
+}
+
+.debug-panel input:focus {
+  background: rgba(2, 215, 242, 0.14);
+}
+
+.debug-panel input::placeholder {
+  color: var(--cyber-dim);
+}
+
+.debug-panel section small {
+  display: block;
+  width: 100%;
+  color: var(--cyber-dim);
+  font-size: 10px;
+}
+
+/* ---------------------------------------------------------------- Debug drawer: header */
+
+.debug-header {
+  margin: -16px -16px 4px;
+  padding: 16px 16px 12px;
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.025) 0 1px, transparent 1px 3px),
+    linear-gradient(180deg, #121219, #0b0b10);
+  border-bottom: 1px solid var(--cyber-yellow);
+}
+
+.debug-title {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 0 12px;
+  padding: 5px 22px 5px 10px;
+  background: var(--cyber-yellow);
+  color: var(--cyber-ink);
+  font: 800 18px/1 var(--platform-font);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  text-shadow:
+    1.5px 0 var(--cyber-red),
+    -1.5px 0 var(--cyber-cyan);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 12px) 100%, 0 100%);
+}
+
+.debug-title small {
+  font: 600 10px/1 var(--cyber-mono);
+  letter-spacing: 1px;
+  text-shadow: none;
+  text-transform: uppercase;
+}
+
+.debug-readout {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+}
+
+.debug-readout-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 6px 12px 6px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border-left: 3px solid #3a3a46;
+  text-transform: uppercase;
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%);
+}
+
+.debug-readout-row dt {
+  color: var(--cyber-dim);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+}
+
+.debug-readout-row dd {
+  margin: 0;
+  color: #6c6c78;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.debug-readout-row[data-tone="set"] {
+  background: rgba(2, 215, 242, 0.08);
+  border-left-color: var(--cyber-cyan);
+}
+
+.debug-readout-row[data-tone="set"] dd {
+  color: var(--cyber-cyan);
+  text-shadow: 0 0 8px rgba(2, 215, 242, 0.55);
+}
+
+.debug-readout-row[data-tone="danger"] {
+  background: rgba(255, 0, 60, 0.1);
+  border-left-color: var(--cyber-red);
+}
+
+.debug-readout-row[data-tone="danger"] dd {
+  color: var(--cyber-red);
+  text-shadow: 0 0 8px rgba(255, 0, 60, 0.55);
+}
+
+/* ---------------------------------------------------------------- Debug drawer: terminal */
+
+.debug-terminal {
+  /* Pinned to the bottom of the drawer. */
+  margin-top: auto;
+  padding-top: 18px;
+}
+
+.debug-terminal-bar {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 8px;
+  background: var(--cyber-line);
+  color: var(--cyber-dim);
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.debug-terminal-screen {
+  min-height: 84px;
+  padding: 8px 10px;
+  background: #050508;
+  border: 1px solid var(--cyber-line);
+  border-top: none;
+  box-shadow: inset 0 0 22px rgba(2, 215, 242, 0.07);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.debug-terminal-line {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.debug-terminal-line.fading {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.debug-prompt {
+  color: var(--cyber-yellow);
+}
+
+.debug-tone-verb {
+  color: var(--cyber-cyan);
+}
+
+.debug-tone-key {
+  color: var(--cyber-text);
+}
+
+.debug-tone-value {
+  color: var(--cyber-yellow);
+}
+
+.debug-terminal-error {
+  color: var(--cyber-red);
+  text-shadow: 0 0 6px rgba(255, 0, 60, 0.6);
+}
+
+.debug-cursor {
+  display: inline-block;
+  width: 0.6em;
+  height: 1.15em;
+  margin-left: 1px;
+  vertical-align: text-bottom;
+  background: var(--cyber-yellow);
+  animation: debug-cursor-blink 1s steps(1) infinite;
+}
+
+@keyframes debug-cursor-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .debug-cursor {
+    animation: none;
+  }
+
+  .debug-terminal-line.fading {
+    transition: none;
+  }
+}
+
+/* ---------------------------------------------------------------- System layer (platform) */
+/* The platform's own windows over the game (ADR 014). Cyberpunk like the debug drawer, but in
+   the look of a game's system menu rather than an in-world device: salmon-red frames with corner
+   brackets, a condensed sans-serif, cyan for actions. The blocking window and the notice are the
+   same panel. Nothing here comes from the game. */
+
+.system-overlay,
+.system-notice {
+  --system-red: #ff5f56;
+  --system-red-dim: rgba(255, 95, 86, 0.38);
+  --system-cyan: #5ef6ff;
+  --system-cyan-dim: rgba(94, 246, 255, 0.35);
+  --system-surface: rgba(10, 12, 18, 0.95);
+  --system-text: #f1e6dd;
+  --system-font: "Bahnschrift", "DIN Alternate", "Arial Narrow", system-ui, sans-serif;
+}
+
+.system-overlay[hidden],
+.system-notice[hidden],
+.system-panel [hidden] {
+  display: none;
+}
+
+.system-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 95, 86, 0.035) 0 1px, transparent 1px 4px),
+    rgba(0, 0, 0, 0.72);
+  touch-action: auto;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* A notice does not block: the same panel at the top, without the dark backdrop. */
+.system-notice {
+  position: fixed;
+  top: 12px;
+  left: 50%;
+  z-index: 4;
+  width: min(440px, calc(100vw - 32px));
+  transform: translateX(-50%);
+}
+
+.system-panel {
+  --tone: var(--system-red);
+  --tone-dim: var(--system-red-dim);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: min(440px, 100%);
+  padding-bottom: 22px;
+  border: 1px solid var(--tone-dim);
+  background: var(--system-surface);
+  color: var(--system-text);
+  font: 500 18px/1.4 var(--system-font);
+  box-shadow: 0 0 40px color-mix(in srgb, var(--tone) 12%, transparent);
+  animation: system-in 0.25s ease-out;
+}
+
+.system-panel.info {
+  --tone: var(--system-cyan);
+  --tone-dim: var(--system-cyan-dim);
+}
+
+/* Corner brackets: top left and bottom right. */
+.system-panel::before,
+.system-panel::after {
+  content: "";
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--tone);
+  pointer-events: none;
+}
+
+.system-panel::before {
+  top: -2px;
+  left: -2px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.system-panel::after {
+  right: -2px;
+  bottom: -2px;
+  border-top: none;
+  border-left: none;
+}
+
+.system-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 34px;
+  padding: 0 22px;
+  border-bottom: 1px solid var(--tone-dim);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--tone) 16%, transparent),
+    transparent 75%
+  );
+  color: var(--tone);
+  font: 600 12px/1 var(--system-font);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+.system-label::before {
+  content: "■ ";
+}
+
+.system-text {
+  margin: 0;
+  padding: 0 22px;
+}
+
+/* Dashes: in the window they light up one after another (activity); in the notice they go out
+   one by one as its time runs out (set from the script). */
+.system-dashes {
+  display: flex;
+  gap: 4px;
+  padding: 0 22px;
+}
+
+.system-dashes span {
+  width: 18px;
+  height: 4px;
+  background: var(--tone);
+}
+
+.system-busy span {
+  animation: system-busy 1.1s infinite;
+}
+
+.system-busy span:nth-child(2) {
+  animation-delay: 0.12s;
+}
+
+.system-busy span:nth-child(3) {
+  animation-delay: 0.24s;
+}
+
+.system-busy span:nth-child(4) {
+  animation-delay: 0.36s;
+}
+
+.system-busy span:nth-child(5) {
+  animation-delay: 0.48s;
+}
+
+@keyframes system-busy {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+
+  30% {
+    opacity: 1;
+  }
+}
+
+.system-action {
+  align-self: flex-start;
+  margin: 0 22px;
+  padding: 11px 28px 11px 24px;
+  border: 1px solid var(--system-cyan);
+  background: rgba(94, 246, 255, 0.07);
+  box-shadow: inset 4px 0 0 var(--system-cyan);
+  color: var(--system-cyan);
+  font: 600 14px/1 var(--system-font);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.system-action:hover,
+.system-action:focus-visible {
+  background: var(--system-cyan);
+  color: #061014;
+}
+
+.system-close {
+  width: 26px;
+  height: 26px;
+  margin-right: -14px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--tone);
+  font: 400 22px/1 var(--system-font);
+  cursor: pointer;
+}
+
+.system-close:hover,
+.system-close:focus-visible {
+  border-color: var(--tone);
+  background: color-mix(in srgb, var(--tone) 18%, transparent);
+}
+
+@keyframes system-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .system-panel,
+  .system-busy span {
+    animation: none;
+  }
+}

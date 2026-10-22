@@ -1,0 +1,26 @@
+{
+  "name": "@cb2077/client",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "The platform: HTML page, network, round lifecycle, system UI; runs the game from @cb2077/game",
+  "scripts": {
+    "dev": "vite",
+    "dev:demo": "vite --mode demo",
+    "build": "vite build",
+    "build:demo": "vite build --mode demo",
+    "build:pages": "vite build --mode pages",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@cb2077/game": "workspace:*",
+    "@cb2077/math": "workspace:*",
+    "@cb2077/rgs": "workspace:*",
+    "@cb2077/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "^8.3.3"
+  }
+}

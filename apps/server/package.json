@@ -1,0 +1,22 @@
+{
+  "name": "@cb2077/server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Node.js WebSocket server: hosts the RGS (@cb2077/rgs) with the CB2077 math",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@cb2077/math": "workspace:*",
+    "@cb2077/rgs": "workspace:*",
+    "tsx": "^4.23.15",
+    "ws": "^8.22.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.18.2"
+  }
+}

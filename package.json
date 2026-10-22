@@ -1,0 +1,49 @@
+{
+  "name": "cb2077-slots",
+  "private": true,
+  "type": "module",
+  "description": "HTML5 cyberpunk slot game: a platform running a self-contained PixiJS game, and an RGS emulator for Node.js and the browser",
+  "engines": {
+    "node": ">=24",
+    "pnpm": ">=12"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n server,client -c cyan,magenta \"pnpm --filter @cb2077/server dev\" \"pnpm --filter @cb2077/client dev\"",
+    "dev:demo": "pnpm --filter @cb2077/client dev:demo",
+    "test": "pnpm -r --if-present test",
+    "lint": "eslint .",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "build": "pnpm --filter @cb2077/client build",
+    "build:demo": "pnpm --filter @cb2077/client build:demo",
+    "build:pages": "pnpm --filter @cb2077/client build:pages",
+    "e2e": "pnpm --filter @cb2077/e2e e2e",
+    "format": "prettier --write .",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,js,mjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml,css,html}": [
+      "prettier --write"
+    ]
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "@types/node": "^24.19.1",
+    "concurrently": "^10.0.5",
+    "eslint": "^10.12.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-simple-import-sort": "^14.0.0",
+    "globals": "^17.13.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0",
+    "prettier": "^3.9.9",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.71.1",
+    "vitest": "^5.0.3"
+  },
+  "packageManager": "pnpm@12.9.1"
+}

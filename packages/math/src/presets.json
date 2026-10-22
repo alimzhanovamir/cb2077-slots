@@ -1,0 +1,46 @@
+[
+  {
+    "id": "noWin",
+    "label": "No win",
+    "grid": [
+      ["chip", "eddie", "implant"],
+      ["deck", "pistol", "katana"],
+      ["solo", "netrunner", "chip"],
+      ["eddie", "deck", "pistol"],
+      ["katana", "solo", "netrunner"]
+    ]
+  },
+  {
+    "id": "smallWin",
+    "label": "Small win",
+    "grid": [
+      ["chip", "eddie", "implant"],
+      ["deck", "chip", "katana"],
+      ["solo", "pistol", "chip"],
+      ["eddie", "deck", "pistol"],
+      ["katana", "solo", "netrunner"]
+    ]
+  },
+  {
+    "id": "bigWin",
+    "label": "Big win",
+    "grid": [
+      ["netrunner", "chip", "eddie"],
+      ["implant", "netrunner", "netrunner"],
+      ["deck", "netrunner", "pistol"],
+      ["netrunner", "katana", "netrunner"],
+      ["solo", "chip", "netrunner"]
+    ]
+  },
+  {
+    "id": "maxWin",
+    "label": "Max win",
+    "grid": [
+      ["netrunner", "netrunner", "netrunner"],
+      ["netrunner", "netrunner", "netrunner"],
+      ["netrunner", "netrunner", "netrunner"],
+      ["netrunner", "netrunner", "netrunner"],
+      ["netrunner", "netrunner", "netrunner"]
+    ]
+  }
+]

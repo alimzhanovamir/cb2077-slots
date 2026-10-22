@@ -1,0 +1,18 @@
+{
+  "name": "@cb2077/math",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "CB2077's game math: reel strips, paytable, 243 ways, debug presets. Plugged into the RGS",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@cb2077/shared": "workspace:*",
+    "zod": "^4.6.5"
+  }
+}

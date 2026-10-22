@@ -1,0 +1,17 @@
+{
+  "name": "@cb2077/game",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "CB2077's presentation: scene, reels, symbols, win show, bottom panel. Knows nothing about the platform",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@cb2077/shared": "workspace:*",
+    "pixi.js": "^8.22.0"
+  }
+}

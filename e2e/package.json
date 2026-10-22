@@ -1,0 +1,16 @@
+{
+  "name": "@cb2077/e2e",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Playwright end-to-end tests",
+  "scripts": {
+    "e2e": "pnpm e2e:ws && pnpm e2e:demo",
+    "e2e:ws": "playwright test",
+    "e2e:demo": "E2E_MODE=demo playwright test",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0"
+  }
+}
