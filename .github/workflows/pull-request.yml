@@ -1,0 +1,26 @@
+name: Pull request
+
+# The pull request's title becomes the squash commit's message and decides the next version, so it
+# follows Conventional Commits; a `feat`, `fix` or `perf` pull request adds its CHANGELOG entry
+# under `Unreleased` (CONTRIBUTING.md, "Pull requests").
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Title and changelog
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - run: node scripts/check-pull-request.js
+        env:
+          # Passed through the environment, never inlined into the script.
+          PULL_REQUEST_TITLE: ${{ github.event.pull_request.title }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}

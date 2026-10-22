@@ -72,12 +72,18 @@ the client, the game, the protocol, the RGS or the math.
 
 ## Workflow
 
-- Do not commit, push or create branches unless the user asks.
+- Commit, push or create a branch only with the owner's explicit permission for that action; an
+  instruction to change something is not a permission to commit it.
+- Never push to `main`: it is protected. Every change goes through its own branch
+  (`<type>/<short-description>`) and its own pull request; one task per pull request
+  (CONTRIBUTING.md). Prepare the pull request's title and description; the owner opens and merges
+  it.
 - ADRs: until the first release, edit the existing ADR in place (decision, reasons, considered
   options); after it, a changed decision gets a new ADR that supersedes the old one (see
   [docs/adr/README.md](docs/adr/README.md)). Keep `docs/` in sync with the code.
-- `CHANGELOG.md`: never write to it on your own. An entry marks that the owner accepts the work,
-  so propose the wording and wait for the owner's approval first.
+- `CHANGELOG.md`: a `feat`, `fix` or `perf` pull request adds its entry under `Unreleased` (in
+  English). Never write it on your own: propose the wording and wait for the owner's approval.
+  The version is never raised by hand; the `release` workflow does it after the merge.
 - Discuss and agree on plans before large changes; do not re-litigate agreed decisions.
 
 ## Environment notes

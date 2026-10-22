@@ -1,5 +1,6 @@
 {
   "name": "cb2077-slots",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "description": "HTML5 cyberpunk slot game: a platform running a self-contained PixiJS game, and an RGS emulator for Node.js and the browser",
@@ -10,7 +11,7 @@
   "scripts": {
     "dev": "concurrently -k -n server,client -c cyan,magenta \"pnpm --filter @cb2077/server dev\" \"pnpm --filter @cb2077/client dev\"",
     "dev:demo": "pnpm --filter @cb2077/client dev:demo",
-    "test": "pnpm -r --if-present test",
+    "test": "pnpm -r --if-present test && vitest run scripts",
     "lint": "eslint .",
     "typecheck": "pnpm -r --if-present typecheck",
     "build": "pnpm --filter @cb2077/client build",

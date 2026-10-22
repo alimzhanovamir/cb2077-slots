@@ -114,9 +114,33 @@ per month on the Free plan.
 
 ## Deploy
 
-`.github/workflows/pages.yml` publishes the demo (ADR 013) on every push to `main`:
-`pnpm install --frozen-lockfile` → `pnpm build:pages` (in-page emulator, base
+`.github/workflows/pages.yml` publishes the demo (ADR 013) for every released version, when the
+`release` workflow pushes the tag `vX.Y.Z` (see [CONTRIBUTING](../CONTRIBUTING.md#versions)), or by
+hand: `pnpm install --frozen-lockfile` → `pnpm build:pages` (in-page emulator, base
 `/cb2077-slots/`) → `actions/upload-pages-artifact` → `actions/deploy-pages`. The game is
 served at `https://<owner>.github.io/cb2077-slots/`.
 
-One-time setup: repository Settings → Pages → Source: **GitHub Actions**.
+One-time setup:
+
+- Settings → Pages → Source: **GitHub Actions**;
+- Settings → Environments → `github-pages` → Deployment branches and tags: add the tag rule `v*`.
+
+## Releases
+
+`.github/workflows/release.yml` runs after every merge into `main` and releases the version that
+the pull request's title asks for (`scripts/release.js`); `.github/workflows/pull-request.yml`
+checks the title and the CHANGELOG entry of every pull request (`scripts/check-pull-request.js`).
+The rules are in [CONTRIBUTING](../CONTRIBUTING.md#versions); `scripts/versioning.test.js` runs
+with `pnpm test`.
+
+One-time setup of the release key (on your machine, then on GitHub):
+
+1. `ssh-keygen -t ed25519 -f release_key -N "" -C "release workflow"`.
+2. Settings → Deploy keys → Add deploy key: the contents of `release_key.pub`, **Allow write
+   access**.
+3. Settings → Secrets and variables → Actions → New repository secret `RELEASE_DEPLOY_KEY`: the
+   contents of `release_key`.
+4. Settings → Rules → the ruleset of `main` → Bypass list → add **Deploy keys**.
+5. Delete `release_key` and `release_key.pub` from the disk.
+
+To revoke the key, delete it in Settings → Deploy keys; releases stop until a new one is added.

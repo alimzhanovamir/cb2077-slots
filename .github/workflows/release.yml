@@ -1,0 +1,48 @@
+name: Release
+
+# After every merge into `main`: works out the next version from the merged pull request's title,
+# commits it as `chore(release): X.Y.Z`, tags `vX.Y.Z` and pushes (CONTRIBUTING.md, "Versions").
+# It pushes with a deploy key: `main` is protected, and the key is the only one allowed to bypass
+# it. A push made with the key also starts the Pages deploy for the new tag.
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Release
+    # The release commit itself releases nothing.
+    if: ${{ !startsWith(github.event.head_commit.message, 'chore(release):') }}
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ssh-key: ${{ secrets.RELEASE_DEPLOY_KEY }}
+          fetch-depth: 0 # the tags decide which versions are released
+
+      - name: Work out the version
+        id: version
+        run: node scripts/release.js
+
+      - name: Commit, tag and push
+        if: steps.version.outputs.released == 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if ! git diff --quiet; then
+            git commit -am "chore(release): ${VERSION}"
+          fi
+
+          git tag -a "v${VERSION}" -m "${VERSION}"
+          git push origin HEAD:main "v${VERSION}"
