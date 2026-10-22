@@ -7,7 +7,7 @@
 
 ```sh
 pnpm install
-pnpm --filter @cb2077/e2e exec playwright install   # once, for E2E tests
+pnpm --filter @cb2077/e2e exec playwright install chromium webkit   # once, for E2E tests
 ```
 
 To run one browser or one mode: `pnpm --filter @cb2077/e2e e2e:ws --project=chromium`,
@@ -95,15 +95,17 @@ remembering to run it.
 | pre-push   | `pnpm test` (unit tests)                                   |
 
 - Type checking is not in pre-commit: it is slow on every commit, and CI catches it.
-- E2E tests are not in pre-push: they take minutes across five browser projects.
+- E2E tests are not in pre-push: they take minutes across four browser projects.
 - Hooks can be bypassed with `--no-verify`; CI is the final gate.
 
 `.github/workflows/ci.yml` runs on every push and pull request (`ubuntu-latest`, Node from
 `.nvmrc`, pnpm store cache):
 
 - job `check`: `lint → typecheck → test → build`;
-- job `e2e` (after `check`): installs the Playwright browsers (cached) and runs `pnpm e2e` in
-  both transport modes; traces and screenshots are uploaded when a test fails.
+- jobs `E2E (ws)` and `E2E (demo)` (in parallel, after `check`, on `ubuntu-24.04`): install
+  Chromium and WebKit (cached, also after a failed run), run the suite in their mode with two
+  workers and report failures as annotations on the pull request; traces and screenshots are
+  uploaded when a test fails.
 
 GitHub Actions is free for public repositories; private repositories get 2,000 Linux minutes
 per month on the Free plan.

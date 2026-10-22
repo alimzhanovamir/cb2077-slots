@@ -27,9 +27,15 @@ jobs:
       - run: pnpm build:demo
 
   e2e:
-    name: E2E (ws and demo)
+    # Two jobs in parallel, one per transport mode (ADR 012).
+    name: E2E (${{ matrix.mode }})
     needs: check
-    runs-on: ubuntu-latest
+    # Pinned: Playwright's system dependencies are known for this image.
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [ws, demo]
     env:
       CI: true
     steps:
@@ -41,26 +47,33 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
 
-      - name: Cache Playwright browsers
+      # Restore and save separately, so the browsers are cached even when tests fail.
+      - name: Restore Playwright browsers
         id: playwright-cache
-        uses: actions/cache@v6
+        uses: actions/cache/restore@v6
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
       - name: Install Playwright browsers
         if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: pnpm --filter @cb2077/e2e exec playwright install --with-deps chromium firefox webkit
+        run: pnpm --filter @cb2077/e2e exec playwright install --with-deps chromium webkit
       - name: Install Playwright system dependencies
         if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: pnpm --filter @cb2077/e2e exec playwright install-deps chromium firefox webkit
+        run: pnpm --filter @cb2077/e2e exec playwright install-deps chromium webkit
+      - name: Save Playwright browsers
+        if: always() && steps.playwright-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ steps.playwright-cache.outputs.cache-primary-key }}
 
-      - run: pnpm e2e
+      - run: pnpm --filter @cb2077/e2e e2e:${{ matrix.mode }}
 
       - name: Upload test artifacts
         if: failure()
         uses: actions/upload-artifact@v7
         with:
-          name: playwright-results
+          name: playwright-results-${{ matrix.mode }}
           path: |
             e2e/test-results
             e2e/playwright-report

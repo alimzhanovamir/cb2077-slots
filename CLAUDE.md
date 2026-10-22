@@ -20,7 +20,7 @@ each other by name (`@cb2077/shared`).
 | `packages/math`   | the game's math: strips, paytable, 243 ways, presets; imports nothing from rgs |
 | `apps/server`     | Node.js WebSocket host for `rgs` + `math`                                      |
 | `apps/client`     | the platform: `logic` / `view` / `net` / `app` / `debug` / `util`; no Pixi     |
-| `e2e`             | Playwright, 5 browser projects × 2 transport modes (`ws`, `demo`)              |
+| `e2e`             | Playwright, 4 browser projects × 2 transport modes (`ws`, `demo`)              |
 
 ## Commands (pnpm only — never npm)
 
@@ -82,8 +82,6 @@ the client, the game, the protocol, the RGS or the math.
 
 ## Environment notes
 
-- Playwright's Firefox does not start on this Mac (macOS 27); run local E2E without the
-  `firefox` project. CI on Ubuntu runs all five projects.
 - In the sandboxed shell, set a short `TMPDIR` for E2E (e.g. `TMPDIR=/tmp/claude-501/pw`);
   long temp paths break `tsx`'s IPC socket.
 - The in-page emulator mode is `demo` everywhere: transport, Vite mode, scripts, E2E mode

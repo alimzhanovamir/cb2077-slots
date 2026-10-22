@@ -46,8 +46,8 @@ The game is rendered on a canvas (ADR 003), so its buttons are not DOM elements 
 found with selectors. The platform's system windows are HTML (ADR 014) and are found by
 `data-testid` (`system-overlay`, `system-action`, `system-notice`, `system-notice-close`).
 
-- Playwright in the `e2e` workspace, five projects: `chromium`, `firefox`, `webkit`,
-  `mobile-safari` (iPhone), `mobile-chrome` (Pixel).
+- Playwright in the `e2e` workspace, four projects: `chromium`, `webkit` (Safari),
+  `mobile-chrome` (Pixel) and `mobile-safari` (iPhone): both engines, mouse and touch.
 - The client exposes a read-only test hook `window.__slot`, created in
   `apps/client/src/app/testHook.ts`:
   - `getState()` → `{ phase, connection, balance, bet, step, lastWin, message, grid }`; `grid`
@@ -68,6 +68,10 @@ Why this approach:
 
 Limits:
 
+- Firefox is not tested: the suite covers the two engines that matter for the target players
+  (Chromium, WebKit), which keeps CI fast. Firefox is checked by hand before a release.
+- Mobile projects are device emulation in the Chromium and WebKit engines (screen size, touch,
+  user agent), not real phones.
 - Playwright WebKit and device emulation are not real Safari or real phones; a manual check on a
   real device is still required (NFR-07).
 - Headless browsers render WebGL in software: fine for behaviour, meaningless for frame rate.
@@ -75,7 +79,7 @@ Limits:
 
 ## E2E scenarios
 
-Run in five projects and two modes (`ws`, `demo`).
+Run in four projects and two modes (`ws`, `demo`); in CI the two modes are parallel jobs.
 
 | #   | Scenario                                                                | Modes    |
 | --- | ----------------------------------------------------------------------- | -------- |

@@ -22,10 +22,13 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
+  // Software WebGL is heavy: more parallel pages make the game miss frames on a CI runner.
+  workers: process.env.CI ? 2 : undefined,
   timeout: 45_000,
   expect: { timeout: 10_000 },
+  // `github` turns failures into annotations shown on the pull request.
   reporter: process.env.CI
-    ? [["list"], ["html", { open: "never", outputFolder: `playwright-report/${mode}` }]]
+    ? [["github"], ["list"], ["html", { open: "never", outputFolder: `playwright-report/${mode}` }]]
     : "list",
   metadata: { mode },
   use: {
@@ -57,7 +60,6 @@ export default defineConfig({
   ],
   projects: [
     { name: "chromium", use: { ...devices["Desktop Chrome"] } },
-    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
     { name: "webkit", use: { ...devices["Desktop Safari"] } },
     { name: "mobile-safari", use: { ...devices["iPhone 15"] } },
     { name: "mobile-chrome", use: { ...devices["Pixel 7"] } },
