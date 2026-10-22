@@ -22,8 +22,9 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
-  // Software WebGL is heavy: more parallel pages make the game miss frames on a CI runner.
-  workers: process.env.CI ? 2 : undefined,
+  // CI runners have no GPU and render WebGL in software; one browser at a time gets enough CPU
+  // to keep the game responsive.
+  workers: process.env.CI ? 1 : undefined,
   timeout: 45_000,
   expect: { timeout: 10_000 },
   // `github` turns failures into annotations shown on the pull request.
@@ -59,9 +60,12 @@ export default defineConfig({
     },
   ],
   projects: [
-    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
+    // `channel: "chromium"` runs the full Chromium in its new headless mode instead of the
+    // headless shell: software WebGL then renders in the GPU process, not on the page's main
+    // thread, so input and test commands are not starved on a CI runner without a GPU.
+    { name: "chromium", use: { ...devices["Desktop Chrome"], channel: "chromium" } },
     { name: "webkit", use: { ...devices["Desktop Safari"] } },
     { name: "mobile-safari", use: { ...devices["iPhone 15"] } },
-    { name: "mobile-chrome", use: { ...devices["Pixel 7"] } },
+    { name: "mobile-chrome", use: { ...devices["Pixel 7"], channel: "chromium" } },
   ],
 });
