@@ -184,7 +184,13 @@ export class GameView {
 
     options.host.appendChild(app.canvas);
 
-    return new GameView(app, options.formatMoney);
+    const view = new GameView(app, options.formatMoney);
+
+    // Pixi hit-tests pointer events against the last rendered scene. Render it once now, so the
+    // controls work even if the platform pauses the game (stops the ticker) before its first frame.
+    app.render();
+
+    return view;
   }
 
   setActions(actions: PlayerActions): void {

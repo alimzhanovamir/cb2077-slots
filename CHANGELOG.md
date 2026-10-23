@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- A click or tap right after the game loaded could be ignored.
+
 ## [0.2.0] - 2026-10-23
 
 ### Added
