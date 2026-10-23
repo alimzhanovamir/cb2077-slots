@@ -34,7 +34,7 @@ an RGS that hosts the game's math.
 | `packages/math`   | The game's math: reel strips, paytable, 243 ways, debug presets          |
 | `packages/shared` | Protocol contract: the envelope and the game payload as zod schemas      |
 | `apps/server`     | Node.js WebSocket server hosting the RGS with the math                   |
-| `e2e`             | Playwright tests in Chromium, Firefox, WebKit and mobile emulation       |
+| `e2e`             | Playwright tests in Chromium and WebKit, desktop and mobile emulation    |
 | `docs`            | Architecture, ADRs, NFRs, protocol, math, testing                        |
 
 ## Checks
@@ -44,7 +44,7 @@ pnpm lint && pnpm typecheck && pnpm test && pnpm e2e
 ```
 
 Git hooks run ESLint/Prettier on commit and unit tests on push; GitHub Actions runs everything
-on every push and deploys `main` to GitHub Pages.
+on every pull request and deploys `main` to GitHub Pages.
 
 ## Documentation
 

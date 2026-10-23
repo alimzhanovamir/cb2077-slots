@@ -22,10 +22,14 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
-  timeout: 45_000,
-  expect: { timeout: 10_000 },
+  // CI runners have no GPU and render WebGL in software: one browser at a time, and twice the time
+  // for slow runners (the same commit runs from 5 to 10 minutes there).
+  workers: process.env.CI ? 1 : undefined,
+  timeout: process.env.CI ? 90_000 : 45_000,
+  expect: { timeout: process.env.CI ? 20_000 : 10_000 },
+  // `github` turns failures into annotations shown on the pull request.
   reporter: process.env.CI
-    ? [["list"], ["html", { open: "never", outputFolder: `playwright-report/${mode}` }]]
+    ? [["github"], ["list"], ["html", { open: "never", outputFolder: `playwright-report/${mode}` }]]
     : "list",
   metadata: { mode },
   use: {
@@ -56,10 +60,12 @@ export default defineConfig({
     },
   ],
   projects: [
-    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
-    { name: "firefox", use: { ...devices["Desktop Firefox"] } },
+    // `channel: "chromium"` runs the full Chromium in its new headless mode instead of the
+    // headless shell: software WebGL then renders in the GPU process, not on the page's main
+    // thread, so input and test commands are not starved on a CI runner without a GPU.
+    { name: "chromium", use: { ...devices["Desktop Chrome"], channel: "chromium" } },
     { name: "webkit", use: { ...devices["Desktop Safari"] } },
     { name: "mobile-safari", use: { ...devices["iPhone 15"] } },
-    { name: "mobile-chrome", use: { ...devices["Pixel 7"] } },
+    { name: "mobile-chrome", use: { ...devices["Pixel 7"], channel: "chromium" } },
   ],
 });

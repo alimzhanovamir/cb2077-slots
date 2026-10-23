@@ -1,7 +1,9 @@
 name: CI
 
 on:
+  # Branches are checked through their pull request; a push to a branch would run everything twice.
   push:
+    branches: [main]
   pull_request:
 
 concurrency:
@@ -27,9 +29,18 @@ jobs:
       - run: pnpm build:demo
 
   e2e:
-    name: E2E (ws and demo)
+    # Two jobs in parallel, one per transport mode (ADR 012).
+    name: E2E (${{ matrix.mode }})
     needs: check
     runs-on: ubuntu-latest
+    # Browsers and their system packages come preinstalled: installing them with apt took up to an
+    # hour on some runners. The tag must match the Playwright version in pnpm-lock.yaml.
+    container: mcr.microsoft.com/playwright:v1.63.0-noble
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        mode: [ws, demo]
     env:
       CI: true
     steps:
@@ -41,26 +52,13 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
 
-      - name: Cache Playwright browsers
-        id: playwright-cache
-        uses: actions/cache@v6
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-      - name: Install Playwright browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: pnpm --filter @cb2077/e2e exec playwright install --with-deps chromium firefox webkit
-      - name: Install Playwright system dependencies
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: pnpm --filter @cb2077/e2e exec playwright install-deps chromium firefox webkit
-
-      - run: pnpm e2e
+      - run: pnpm --filter @cb2077/e2e e2e:${{ matrix.mode }}
 
       - name: Upload test artifacts
         if: failure()
         uses: actions/upload-artifact@v7
         with:
-          name: playwright-results
+          name: playwright-results-${{ matrix.mode }}
           path: |
             e2e/test-results
             e2e/playwright-report

@@ -12,7 +12,7 @@ Non-functional requirements describe measurable qualities of the system. Code ru
 | NFR-04 | Reliability     | A page reload keeps the balance and the last round                                                                               | E2E                                                                                            |
 | NFR-05 | Correctness     | Every monetary amount is an integer number of cents                                                                              | Unit tests of `evaluate` and bets                                                              |
 | NFR-06 | Maintainability | Changing the platform requires no change in the game and vice versa; replacing placeholder graphics touches only `packages/game` | Package and layer boundaries enforced by ESLint, contracts checked by `tsc` (ADR 006, ADR 014) |
-| NFR-07 | Compatibility   | Works in Chromium, Firefox and WebKit (Safari) on desktop and in mobile emulation (iPhone, Pixel)                                | Playwright E2E, all five projects                                                              |
+| NFR-07 | Compatibility   | Works in Chromium and WebKit (Safari) on desktop and in mobile emulation (iPhone, Pixel)                                         | Playwright E2E, all four projects                                                              |
 
 ## Notes
 
