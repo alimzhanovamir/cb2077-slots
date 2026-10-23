@@ -48,6 +48,9 @@ the same network: `http://<your-computer-ip>:5173`.
 | `VITE_TRANSPORT` | `ws` (`demo` in modes `demo` and `pages`) | `ws` — Node.js server; `demo` — in-page emulator |
 | `VITE_WS_URL`    | `ws://<page host>:8080`                   | WebSocket URL in `ws` mode                       |
 
+`VITE_APP_VERSION` is not set by hand: `vite.config.ts` takes it from the root `package.json`,
+and the platform shows it in the bottom-left corner of the page.
+
 ## Dependencies
 
 - pnpm runs dependency build scripts only when they are allowed in `pnpm-workspace.yaml`

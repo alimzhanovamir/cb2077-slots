@@ -24,6 +24,8 @@ test.describe("slot game", () => {
     });
 
     expect(state.grid).toHaveLength(5);
+    // The platform shows the project's version (root package.json).
+    await expect(page.getByTestId("platform-version")).toHaveText(/^v\d+\.\d+\.\d+$/);
   });
 
   test("2. spins with presets and updates the balance", async ({ page }) => {

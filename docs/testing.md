@@ -43,8 +43,9 @@
 ## E2E: driving a canvas game
 
 The game is rendered on a canvas (ADR 003), so its buttons are not DOM elements and cannot be
-found with selectors. The platform's system windows are HTML (ADR 014) and are found by
-`data-testid` (`system-overlay`, `system-action`, `system-notice`, `system-notice-close`).
+found with selectors. The platform's system windows and its version label are HTML (ADR 014)
+and are found by `data-testid` (`system-overlay`, `system-action`, `system-notice`,
+`system-notice-close`, `platform-version`).
 
 - Playwright in the `e2e` workspace, four projects: `chromium`, `webkit` (Safari),
   `mobile-chrome` (Pixel) and `mobile-safari` (iPhone): both engines, mouse and touch.
@@ -83,7 +84,7 @@ Run in four projects and two modes (`ws`, `demo`); in CI the two modes are paral
 
 | #   | Scenario                                                                | Modes    |
 | --- | ----------------------------------------------------------------------- | -------- |
-| 1   | Load → `idle`, starting balance shown                                   | ws, demo |
+| 1   | Load → `idle`, starting balance and the version shown                   | ws, demo |
 | 2   | Spin with `noWin` and `bigWin` presets → expected balance               | ws, demo |
 | 3   | Change step, − / + clamp to min/max, bet above balance → Spin disabled  | ws, demo |
 | 4   | Drop connection during a spin → reconnect → same round, correct balance | ws, demo |

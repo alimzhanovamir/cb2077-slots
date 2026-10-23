@@ -33,6 +33,139 @@ body {
   height: 100%;
 }
 
+/* ---------------------------------------------------------------- Version label (platform) */
+/* The build's version in the bottom-left corner: cyberpunk yellow with a short glitch every few
+   seconds, when red and cyan copies of the text shift and get sliced. */
+
+.platform-version {
+  --glitch-red: #ff003c;
+  --glitch-cyan: #02d7f2;
+  position: fixed;
+  left: calc(12px + env(safe-area-inset-left));
+  bottom: calc(8px + env(safe-area-inset-bottom));
+  z-index: 3;
+  color: #fcee0a;
+  font:
+    700 11px/1 ui-monospace,
+    "SF Mono",
+    Menlo,
+    Consolas,
+    monospace;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-shadow: 0 0 6px rgba(252, 238, 10, 0.45);
+  opacity: 0.85;
+  pointer-events: none;
+  animation: version-jitter 4s steps(1) infinite;
+}
+
+.platform-version::before,
+.platform-version::after {
+  content: attr(data-text);
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  text-shadow: none;
+}
+
+.platform-version::before {
+  color: var(--glitch-red);
+  animation: version-glitch-red 4s infinite;
+}
+
+.platform-version::after {
+  color: var(--glitch-cyan);
+  animation: version-glitch-cyan 4s infinite;
+}
+
+@keyframes version-jitter {
+  0%,
+  92%,
+  100% {
+    transform: none;
+  }
+
+  87% {
+    transform: translateX(1px);
+  }
+
+  89% {
+    transform: translateX(-1px) skewX(-10deg);
+  }
+}
+
+@keyframes version-glitch-red {
+  0%,
+  86%,
+  93%,
+  100% {
+    opacity: 0;
+    transform: none;
+    clip-path: inset(0);
+  }
+
+  87% {
+    opacity: 0.9;
+    transform: translate(-2px, -1px);
+    clip-path: inset(0 0 55% 0);
+  }
+
+  89% {
+    opacity: 0.9;
+    transform: translate(2px, 1px);
+    clip-path: inset(60% 0 0 0);
+  }
+
+  91% {
+    opacity: 0.9;
+    transform: translate(-1px, 0);
+    clip-path: inset(30% 0 35% 0);
+  }
+}
+
+@keyframes version-glitch-cyan {
+  0%,
+  87%,
+  94%,
+  100% {
+    opacity: 0;
+    transform: none;
+    clip-path: inset(0);
+  }
+
+  88% {
+    opacity: 0.9;
+    transform: translate(2px, 1px);
+    clip-path: inset(45% 0 0 0);
+  }
+
+  90% {
+    opacity: 0.9;
+    transform: translate(-2px, -1px);
+    clip-path: inset(0 0 65% 0);
+  }
+
+  92% {
+    opacity: 0.9;
+    transform: translate(1px, 0);
+    clip-path: inset(25% 0 45% 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .platform-version,
+  .platform-version::before,
+  .platform-version::after {
+    animation: none;
+  }
+
+  .platform-version {
+    text-shadow:
+      1px 0 var(--glitch-red),
+      -1px 0 var(--glitch-cyan);
+  }
+}
+
 /* ---------------------------------------------------------------- Debug drawer */
 /* A developer tool in the project's cyberpunk look: its own palette and a monospace font,
    independent of the game's code and fonts. */

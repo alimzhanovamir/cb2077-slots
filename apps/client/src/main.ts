@@ -12,6 +12,7 @@ import { createWebSocketTransport } from "./net/WebSocketTransport.ts";
 import { formatMoney } from "./view/format/money.ts";
 import type { Game } from "./view/Game.ts";
 import { SystemLayer } from "./view/SystemLayer.ts";
+import { showVersion } from "./view/VersionLabel.ts";
 
 async function createTransport(): Promise<TransportFactory> {
   if (import.meta.env.VITE_TRANSPORT === "demo") {
@@ -36,6 +37,8 @@ async function main(): Promise<void> {
   if (!host) {
     throw new Error("The #game element is missing from index.html");
   }
+
+  showVersion(document.body, import.meta.env.VITE_APP_VERSION);
 
   const client = new GameClient(await createTransport());
   const model = new GameModel({ preferredStep: GameController.preferredStep() });
