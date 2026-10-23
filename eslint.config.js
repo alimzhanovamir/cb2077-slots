@@ -180,6 +180,11 @@ export default tseslint.config(
     ...tseslint.configs.disableTypeChecked,
   },
   {
+    // Plain JavaScript run by Node in CI; JSDoc gives the types.
+    files: ["scripts/**/*.js"],
+    rules: { "@typescript-eslint/explicit-module-boundary-types": "off" },
+  },
+  {
     files: ["**/*.config.{js,ts}"],
     rules: { "no-restricted-syntax": ["error", ...restrictedSyntax] },
   },
@@ -394,7 +399,7 @@ export default tseslint.config(
     languageOptions: { globals: globals.browser },
   },
   {
-    files: ["apps/server/**/*.ts", "**/*.config.{js,ts}", "e2e/**/*.ts"],
+    files: ["apps/server/**/*.ts", "**/*.config.{js,ts}", "e2e/**/*.ts", "scripts/**/*.js"],
     languageOptions: { globals: globals.node },
   },
   prettier,

@@ -6,3 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+### Added
+
+- 5×3, 243-ways slot with placeholder graphics: spin, bet − / + with a selectable step, Space to
+  spin.
+- Production-like split (ADR 014): platform (`apps/client`), self-contained PixiJS game
+  (`packages/game`), RGS emulator (`packages/rgs`) with the game's math (`packages/math`); the
+  game's data travels as an opaque payload.
+- Two transports: Node.js WebSocket server and the in-page `demo` mode for GitHub Pages.
+- Sessions, reconnect with round recovery, tab takeover.
+- Platform system windows and auto-closing notices in its own cyberpunk style.
+- Debug drawer: next outcome, next error, latency, dropped connection, balance and session, with a
+  command terminal.
+- Unit and E2E tests (4 browser projects × 2 modes), CI, GitHub Pages deploy, documentation.

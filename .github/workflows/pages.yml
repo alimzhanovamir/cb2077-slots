@@ -1,11 +1,13 @@
 name: Deploy to GitHub Pages
 
-# Builds the client with the in-page emulator (ADR 012, ADR 013) and publishes it.
-# One-time setup: repository Settings → Pages → Source: GitHub Actions.
+# Builds the client with the in-page emulator (ADR 012, ADR 013) and publishes it: for every
+# released version (tag `vX.Y.Z`, pushed by the `release` workflow), or by hand.
+# One-time setup: repository Settings → Pages → Source: GitHub Actions; Settings → Environments →
+# `github-pages` → Deployment branches and tags → add the tag rule `v*`.
 
 on:
   push:
-    branches: [main]
+    tags: ["v*"]
   workflow_dispatch:
 
 permissions:
