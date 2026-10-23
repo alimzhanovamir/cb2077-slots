@@ -1,13 +1,19 @@
 name: Release
 
-# After every merge into `main`: works out the next version from the merged pull request's title,
-# commits it as `chore(release): X.Y.Z`, tags `vX.Y.Z` and pushes (CONTRIBUTING.md, "Versions").
+# After every merge into `main`, or by hand: works out the next version from the pull requests
+# merged since the last release, commits it as `chore(release): X.Y.Z`, tags `vX.Y.Z` and pushes
+# (CONTRIBUTING.md, "Versions"). The merged code already passed CI in its pull request: the ruleset
+# of `main` only accepts branches that are up to date with it. The version is worked out from the
+# tags, so a re-run or a manual run releases whatever a failed run left behind.
+#
 # It pushes with a deploy key: `main` is protected, and the key is the only one allowed to bypass
-# it. A push made with the key also starts the Pages deploy for the new tag.
+# it. The key is a secret of the `release` environment, which is given to jobs on `main` only. A
+# push made with the key also starts the Pages deploy for the new tag.
 
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -19,12 +25,16 @@ concurrency:
 jobs:
   release:
     name: Release
-    # The release commit itself releases nothing.
-    if: ${{ !startsWith(github.event.head_commit.message, 'chore(release):') }}
+    # Only on `main`; the release commit itself releases nothing.
+    if: >-
+      github.ref == 'refs/heads/main' &&
+      !startsWith(github.event.head_commit.message, 'chore(release):')
     runs-on: ubuntu-24.04
+    environment: release
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
+          ref: main # the latest `main`: a run for an older merge releases the newer ones too
           ssh-key: ${{ secrets.RELEASE_DEPLOY_KEY }}
           fetch-depth: 0 # the tags decide which versions are released
 
@@ -45,4 +55,6 @@ jobs:
           fi
 
           git tag -a "v${VERSION}" -m "${VERSION}"
-          git push origin HEAD:main "v${VERSION}"
+
+          # Both or neither: a commit without its tag would be released twice.
+          git push --atomic origin HEAD:main "v${VERSION}"

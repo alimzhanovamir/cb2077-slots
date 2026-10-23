@@ -76,8 +76,8 @@ the client, the game, the protocol, the RGS or the math.
   instruction to change something is not a permission to commit it.
 - Never push to `main`: it is protected. Every change goes through its own branch
   (`<type>/<short-description>`) and its own pull request; one task per pull request
-  (CONTRIBUTING.md). Prepare the pull request's title and description; the owner opens and merges
-  it.
+  (CONTRIBUTING.md). Rebase the branch on `origin/main` before pushing it. Prepare the pull
+  request's title and description; the owner opens and merges it.
 - ADRs: until the first release, edit the existing ADR in place (decision, reasons, considered
   options); after it, a changed decision gets a new ADR that supersedes the old one (see
   [docs/adr/README.md](docs/adr/README.md)). Keep `docs/` in sync with the code.

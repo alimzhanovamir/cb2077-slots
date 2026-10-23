@@ -1,7 +1,7 @@
 /**
- * Versioning rules (CONTRIBUTING.md, "Versions"): the title of a merged pull request decides the
- * next version, and the pull request's `Unreleased` notes become that version's CHANGELOG
- * section. Pure functions, used by `release.js` and `check-pull-request.js`.
+ * Versioning rules (CONTRIBUTING.md, "Versions"): the titles of the pull requests merged since the
+ * last release decide the next version, and their `Unreleased` notes become that version's
+ * CHANGELOG section. Pure functions, used by `release.js` and `check-pull-request.js`.
  */
 
 export const TYPES = ["feat", "fix", "docs", "refactor", "test", "chore", "ci", "perf", "style"];
@@ -71,6 +71,37 @@ export function nextVersion(current, change) {
 }
 
 /**
+ * Of the commits merged since the last release, the one that decides the next version: a breaking
+ * change, then a feature, then a fix or a performance change. `null` when none of them releases
+ * anything.
+ *
+ * @param {{ subject: string, body: string }[]} commits
+ * @returns {{ type: string, breaking: boolean } | null}
+ */
+export function decidingChange(commits) {
+  let deciding = null;
+  let decidingRank = 0;
+
+  for (const { subject, body } of commits) {
+    const change = parseTitle(subject);
+
+    if (!("type" in change)) {
+      continue;
+    }
+
+    const breaking = change.breaking || /^BREAKING CHANGE:/m.test(body);
+    const rank = breaking ? 3 : ({ feat: 2, fix: 1, perf: 1 }[change.type] ?? 0);
+
+    if (rank > decidingRank) {
+      deciding = { type: change.type, breaking };
+      decidingRank = rank;
+    }
+  }
+
+  return deciding;
+}
+
+/**
  * The `Unreleased` section's body (without its heading), trimmed.
  *
  * @param {string} changelog
@@ -92,6 +123,18 @@ export function unreleasedNotes(changelog) {
       .split("\n[")[0]
       ?.trim() ?? ""
   );
+}
+
+/**
+ * Whether the CHANGELOG already has the version's section: its release commit landed, only the tag
+ * is missing.
+ *
+ * @param {string} changelog
+ * @param {string} version
+ * @returns {boolean}
+ */
+export function isReleasedInChangelog(changelog, version) {
+  return changelog.includes(`\n## [${version}] - `);
 }
 
 /**
