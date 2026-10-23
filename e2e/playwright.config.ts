@@ -22,11 +22,11 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
-  // CI runners have no GPU and render WebGL in software; one browser at a time gets enough CPU
-  // to keep the game responsive.
+  // CI runners have no GPU and render WebGL in software: one browser at a time, and twice the time
+  // for slow runners (the same commit runs from 5 to 10 minutes there).
   workers: process.env.CI ? 1 : undefined,
-  timeout: 45_000,
-  expect: { timeout: 10_000 },
+  timeout: process.env.CI ? 90_000 : 45_000,
+  expect: { timeout: process.env.CI ? 20_000 : 10_000 },
   // `github` turns failures into annotations shown on the pull request.
   reporter: process.env.CI
     ? [["github"], ["list"], ["html", { open: "never", outputFolder: `playwright-report/${mode}` }]]

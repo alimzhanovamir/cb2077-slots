@@ -44,7 +44,7 @@ pnpm lint && pnpm typecheck && pnpm test && pnpm e2e
 ```
 
 Git hooks run ESLint/Prettier on commit and unit tests on push; GitHub Actions runs everything
-on every push and deploys `main` to GitHub Pages.
+on every pull request and deploys `main` to GitHub Pages.
 
 ## Documentation
 

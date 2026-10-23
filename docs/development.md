@@ -98,15 +98,15 @@ remembering to run it.
 - E2E tests are not in pre-push: they take minutes across four browser projects.
 - Hooks can be bypassed with `--no-verify`; CI is the final gate.
 
-`.github/workflows/ci.yml` runs on every push and pull request (`ubuntu-latest`, Node from
+`.github/workflows/ci.yml` runs on pull requests and pushes to `main` (`ubuntu-latest`, Node from
 `.nvmrc`, pnpm store cache):
 
 - job `check`: `lint → typecheck → test → build`;
 - jobs `E2E (ws)` and `E2E (demo)` (in parallel, after `check`, on `ubuntu-24.04`): install
   Chromium and WebKit (cached, also after a failed run), run the suite in their mode with one
-  worker (no GPU on the runner: WebGL is rendered in software) and report failures as
-  annotations on the pull request; traces and screenshots are
-  uploaded when a test fails.
+  worker and doubled timeouts (no GPU on the runner: WebGL is rendered in software) and report
+  failures as annotations on the pull request; traces and screenshots are uploaded when a test
+  fails.
 
 GitHub Actions is free for public repositories; private repositories get 2,000 Linux minutes
 per month on the Free plan.
