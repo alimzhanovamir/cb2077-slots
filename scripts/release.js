@@ -1,13 +1,22 @@
 /**
- * Runs in the `release` workflow after every push to `main` (CONTRIBUTING.md, "Versions"). Works
- * out the next version from the merged pull request's title, writes it to `package.json` and moves
- * the `Unreleased` notes in `CHANGELOG.md` under it. The workflow commits, tags and pushes.
- * Outputs `released` and `version` for the workflow.
+ * Runs in the `release` workflow after every merge into `main`, or by hand (CONTRIBUTING.md,
+ * "Versions"). Works out the next version from the titles of the pull requests merged since the
+ * last release, writes it to `package.json` and moves the `Unreleased` notes in `CHANGELOG.md`
+ * under it. The workflow commits, tags and pushes. Outputs `released` and `version` for the
+ * workflow.
  */
 import { execFileSync } from "node:child_process";
 import { appendFileSync, readFileSync, writeFileSync } from "node:fs";
 
-import { nextVersion, parseTitle, releaseChangelog, unreleasedNotes } from "./versioning.js";
+import {
+  decidingChange,
+  isReleasedInChangelog,
+  nextVersion,
+  parseTitle,
+  releaseChangelog,
+  RELEASING_TYPES,
+  unreleasedNotes,
+} from "./versioning.js";
 
 function git(...args) {
   return execFileSync("git", args, { encoding: "utf8" }).trim();
@@ -51,34 +60,44 @@ function releasedVersions() {
     });
 }
 
+/** Commits merged since the given release (all of them before the first one), oldest first. */
+function commitsSince(version) {
+  const range = version ? [`v${version}..HEAD`] : ["HEAD"];
+
+  return git("log", "--reverse", "--format=%s%x1f%b%x1e", ...range)
+    .split("\x1e")
+    .map((entry) => entry.trim())
+    .filter(Boolean)
+    .map((entry) => {
+      const [subject = "", body = ""] = entry.split("\x1f");
+
+      return { subject: subject.trim(), body: body.trim() };
+    })
+    .filter(({ subject }) => !subject.startsWith("chore(release):"));
+}
+
 function main() {
-  const subject = git("log", "-1", "--format=%s");
-  const body = git("log", "-1", "--format=%b");
-
-  if (subject.startsWith("chore(release):")) {
-    output({ released: false });
-
-    return;
-  }
-
   const manifestText = readFileSync("package.json", "utf8");
   const current = JSON.parse(manifestText).version;
   const released = releasedVersions();
-  const change = parseTitle(subject);
+  const commits = commitsSince(released[0]);
   let version = null;
 
   if (!released.includes(current)) {
-    // A version set by hand in a pull request (the first one, or 1.0.0) is released as it is.
+    // A version set by hand in a pull request (the first one, or 1.0.0) is released as it is, and
+    // so is a release commit that landed without its tag.
     version = current;
-  } else if ("type" in change) {
-    version = nextVersion(current, {
-      type: change.type,
-      breaking: change.breaking || /^BREAKING CHANGE:/m.test(body),
-    });
+  } else {
+    const change = decidingChange(commits);
+
+    version = change ? nextVersion(current, change) : null;
   }
 
   if (!version) {
-    console.log(`"${subject}" releases nothing`);
+    console.log(
+      `${commits.length} pull request(s) merged since v${current}, none releases anything`,
+    );
+
     output({ released: false });
 
     return;
@@ -86,13 +105,26 @@ function main() {
 
   let changelog = readFileSync("CHANGELOG.md", "utf8");
 
+  if (isReleasedInChangelog(changelog, version)) {
+    // The release commit landed without its tag: only the tag is left to push.
+    console.log(`v${version} is already in CHANGELOG.md; tagging it`);
+    output({ released: true, version });
+
+    return;
+  }
+
   if (!unreleasedNotes(changelog)) {
-    // The pull request check asks for notes; without them the title is the note.
-    const summary = "summary" in change ? change.summary : subject;
+    // The pull request check asks for notes; without them the titles are the notes.
+    const notes = commits
+      .map(({ subject }) => parseTitle(subject))
+      .filter(
+        (change) => "type" in change && (RELEASING_TYPES.includes(change.type) || change.breaking),
+      )
+      .map((change) => `- ${change.summary}`);
 
     changelog = changelog.replace(
       "## [Unreleased]",
-      `## [Unreleased]\n\n### Changed\n\n- ${summary}`,
+      `## [Unreleased]\n\n### Changed\n\n${notes.join("\n") || `- Version ${version}.`}`,
     );
   }
 

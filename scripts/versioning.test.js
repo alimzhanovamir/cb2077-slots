@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { nextVersion, parseTitle, releaseChangelog, unreleasedNotes } from "./versioning.js";
+import {
+  decidingChange,
+  isReleasedInChangelog,
+  nextVersion,
+  parseTitle,
+  releaseChangelog,
+  unreleasedNotes,
+} from "./versioning.js";
 
 const URL = "https://github.com/owner/repo";
 
@@ -44,6 +51,31 @@ describe("nextVersion", () => {
   });
 });
 
+describe("decidingChange", () => {
+  const commit = (subject, body = "") => ({ subject, body });
+
+  it("takes the strongest change among the merged pull requests", () => {
+    expect(decidingChange([commit("docs: a guide"), commit("fix(game): a bug")])).toEqual({
+      type: "fix",
+      breaking: false,
+    });
+
+    expect(decidingChange([commit("fix(game): a bug"), commit("feat(client): a label")])).toEqual({
+      type: "feat",
+      breaking: false,
+    });
+
+    expect(
+      decidingChange([commit("feat(client): a label"), commit("fix: a bug", "BREAKING CHANGE: x")]),
+    ).toEqual({ type: "fix", breaking: true });
+  });
+
+  it("returns null when nothing releases", () => {
+    expect(decidingChange([commit("docs: a guide"), commit("Merge something")])).toBeNull();
+    expect(decidingChange([])).toBeNull();
+  });
+});
+
 describe("unreleasedNotes", () => {
   it("returns the Unreleased body without the comparison links", () => {
     const changelog =
@@ -51,6 +83,17 @@ describe("unreleasedNotes", () => {
 
     expect(unreleasedNotes(changelog)).toBe("### Fixed\n\n- A bug.");
     expect(unreleasedNotes("# Changelog\n\n## [Unreleased]\n\n## [0.1.0] - 2026-10-22\n")).toBe("");
+  });
+});
+
+describe("isReleasedInChangelog", () => {
+  it("finds the version's section, not a mention or a link", () => {
+    const changelog =
+      "## [Unreleased]\n\n## [0.1.1] - 2026-10-23\n\n- Fixes 0.1.0.\n\n" +
+      `[Unreleased]: ${URL}/compare/v0.1.1...HEAD\n[0.1.1]: ${URL}/compare/v0.1.0...v0.1.1\n`;
+
+    expect(isReleasedInChangelog(changelog, "0.1.1")).toBe(true);
+    expect(isReleasedInChangelog(changelog, "0.1.0")).toBe(false);
   });
 });
 
