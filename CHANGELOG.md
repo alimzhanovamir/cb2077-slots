@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-23
+
 ### Added
 
 - 5×3, 243-ways slot with placeholder graphics: spin, bet − / + with a selectable step, Space to
@@ -20,3 +22,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Debug drawer: next outcome, next error, latency, dropped connection, balance and session, with a
   command terminal.
 - Unit and E2E tests (4 browser projects × 2 modes), CI, GitHub Pages deploy, documentation.
+
+[Unreleased]: https://github.com/alimzhanovamir/cb2077-slots/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/alimzhanovamir/cb2077-slots/releases/tag/v0.1.0
