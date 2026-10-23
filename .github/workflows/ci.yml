@@ -32,8 +32,11 @@ jobs:
     # Two jobs in parallel, one per transport mode (ADR 012).
     name: E2E (${{ matrix.mode }})
     needs: check
-    # Pinned: Playwright's system dependencies are known for this image.
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
+    # Browsers and their system packages come preinstalled: installing them with apt took up to an
+    # hour on some runners. The tag must match the Playwright version in pnpm-lock.yaml.
+    container: mcr.microsoft.com/playwright:v1.63.0-noble
+    timeout-minutes: 30
     strategy:
       fail-fast: false
       matrix:
@@ -48,26 +51,6 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-
-      # Restore and save separately, so the browsers are cached even when tests fail.
-      - name: Restore Playwright browsers
-        id: playwright-cache
-        uses: actions/cache/restore@v6
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-      - name: Install Playwright browsers
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
-        run: pnpm --filter @cb2077/e2e exec playwright install --with-deps chromium webkit
-      - name: Install Playwright system dependencies
-        if: steps.playwright-cache.outputs.cache-hit == 'true'
-        run: pnpm --filter @cb2077/e2e exec playwright install-deps chromium webkit
-      - name: Save Playwright browsers
-        if: always() && steps.playwright-cache.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v6
-        with:
-          path: ~/.cache/ms-playwright
-          key: ${{ steps.playwright-cache.outputs.cache-primary-key }}
 
       - run: pnpm --filter @cb2077/e2e e2e:${{ matrix.mode }}
 
